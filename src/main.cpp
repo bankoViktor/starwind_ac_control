@@ -123,6 +123,20 @@ const uint8_t kTolerancePercentage = kTolerance;  // kTolerance is normally 25%
 #define PRI_FLOAT       "%g"
 #define PRI_NUMBER      "%d"
 
+#define SSDP_DEVICE_TYPE            "Basic"
+#define SSDP_DEVICE_TYPE_VERSION    "1"
+#define SSDP_FRIENDLY_NAME          "Сплит-система STARWIND"            // < 64 characters
+#define SSDP_MANUFACTURER           "STARWIND"                          // < 64 characters
+#define SSDP_MANUFACTURER_URL       "https://starwind.com.ru"
+#define SSDP_MODEL_DESCRIPTION      ""                                  // < 128 characters
+#define SSDP_MODEL_NAME             "TAC-12CHSA/XA81"                   // < 32 characters
+#define SSDP_MODEL_NUMBER           ""                                  // < 32 characters
+#define SSDP_MODEL_URL              "https://starwind.com.ru/catalog/item/1114064"
+#define SSDP_SERIAL_NUMBER          "11776WK355ZK32500138"              // < 64 characters
+#define SSDP_PRESENTATION_URL       "/dashboard"
+
+// https://openconnectivity.org/upnp-specs/UPnP-arch-DeviceArchitecture-v2.0-20200417.pdf#page=50
+
 
 /* Private Variables ---------------------------------------------------------- */
 
@@ -139,7 +153,7 @@ bool init_wifi();
 void init_ssdp();
 void init_web_server();
 void init_ir_remote();
-void out(const char * resource, int statusCode);
+void out(const String& request_url, int statusCode);
 void ir_handler();
 const char * to_string(bool val);
 const char * fan_to_string(uint8_t val);
@@ -205,23 +219,14 @@ void init_ssdp() {
 
 void init_web_server() {
 
+    g_server.on(PSTR("/"), WebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request) {
+        out(request->url(), 301);
+        auto response = request->beginResponse(301); // Permanent Redirect
+        response->addHeader(PSTR("Location"), PSTR("/dashboard"));
+        request->send(response);
+    });
+
     g_server.on(PSTR("/description.xml"), HTTP_GET, [](AsyncWebServerRequest *request) {
-
-//SSDP properties
-#define SSDP_DEVICE_TYPE            "Basic"
-#define SSDP_DEVICE_TYPE_VERSION    "1"
-#define SSDP_FRIENDLY_NAME          "Сплит-система STARWIND"            // < 64 characters
-#define SSDP_MANUFACTURER           "STARWIND"                          // < 64 characters
-#define SSDP_MANUFACTURER_URL       "https://starwind.com.ru"
-#define SSDP_MODEL_DESCRIPTION      ""                                  // < 128 characters
-#define SSDP_MODEL_NAME             "TAC-12CHSA/XA81"                   // < 32 characters
-#define SSDP_MODEL_NUMBER           ""                                  // < 32 characters
-#define SSDP_MODEL_URL              "https://starwind.com.ru/catalog/item/1114064"
-#define SSDP_SERIAL_NUMBER          "11776WK355ZK32500138"              // < 64 characters
-#define SSDP_PRESENTATION_URL       "/dashboard"
-
-        // https://openconnectivity.org/upnp-specs/UPnP-arch-DeviceArchitecture-v2.0-20200417.pdf#page=50
-
         auto format = F(
             u8"<?xml version=\"1.0\"?>"
             "<root xmlns=\"urn:schemas-upnp-org:device-1-0\" configId=\"0\">"
@@ -268,10 +273,10 @@ void init_web_server() {
                 (uint8_t) ((chipId >>  8) & 0xff),
                 (uint8_t)   chipId        & 0xff
             );
-            out(PSTR("/description.xml"), 200);
+            out(request->url(), 200);
             request->send(200, PSTR("text/xml"), (String)output);
         } else {
-            out(PSTR("/description.xml"), 500);
+            out(request->url(), 500);
             request->send(500);
         }
     });
@@ -331,10 +336,10 @@ void init_web_server() {
                 to_string(g_ac.getSwingVertical()),
                 to_string(g_ac.getTurbo())
             );
-            out(PSTR("/dashboard"), 200);
+            out(request->url(), 200);
             request->send(200, F("text/html"), (String)output);
         } else {
-            out(PSTR("/dashboard"), 500);
+            out(request->url(), 500);
             request->send(500);
         }
     });
@@ -354,10 +359,10 @@ void init_web_server() {
                 g_ac.getPower() ? F("true") : F("false"),
                 g_ac.getTemp()
             );
-            out(PSTR("/api/state"), 200);
+            out(request->url(), 200);
             request->send(200, F("application/json"), (String)output);
         } else {
-            out(PSTR("/api/state"), 500);
+            out(request->url(), 500);
             request->send(500);
         }
     });
@@ -367,10 +372,11 @@ void init_web_server() {
         g_ac.setTemp(18);
         g_ac.send();
 
-        out(PSTR("/api/send"), 204);
+        out(request->url(), 204);
         request->send(204);
     });
     
+    /*
     g_server.on(PSTR("/favicon.ico"), WebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request) {
         
         //File: favicon.ico.gz, Size: 726
@@ -425,20 +431,13 @@ void init_web_server() {
             0x16, 0x4A, 0x7E, 0x04, 0x00, 0x00
         };
 
-        out(PSTR("/favicon.ico"), 200);
+        out(request->url(), 200);
 
         auto response = request->beginResponse_P(200, PSTR("image/x-icon"), favicon_ico_gz, favicon_ico_gz_len);
         response->addHeader("Content-Encoding", "gzip");
         request->send(response);
     });
-
-    g_server.on(PSTR("/"), WebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request) {
-        out(PSTR("/"), 301);
-
-        auto response = request->beginResponse(301); // Permanent Redirect
-        response->addHeader(PSTR("Location"), PSTR("/dashboard"));
-        request->send(response);
-    });
+    */
 
     /*
     server.on(PSTR("/icon.png"), WebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -491,11 +490,11 @@ void init_ir_remote() {
     Serial.printf(PSTR("IR TX pin %d\n"), kSendPin);
 }
 
-void out(const char * resource, int statusCode) {
+void out(const String& request_url, int statusCode) {
     Serial.printf(
         (const char*) F(" - HTTP %3d for %s\n"),
         statusCode,
-        resource
+        request_url.c_str()
     );
 }
 
