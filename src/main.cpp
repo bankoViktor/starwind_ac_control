@@ -123,6 +123,7 @@ const uint8_t kTolerancePercentage = kTolerance;  // kTolerance is normally 25%
 #define PRI_FLOAT       "%g"
 #define PRI_NUMBER      "%d"
 
+
 /* Private Variables ---------------------------------------------------------- */
 
 IRrecv g_irrecv(kRecvPin, kCaptureBufferSize, kTimeout, true);
@@ -140,6 +141,9 @@ void init_web_server();
 void init_ir_remote();
 void out(const char * resource, int statusCode);
 void ir_handler();
+const char * to_string(bool val);
+const char * fan_to_string(uint8_t val);
+const char * mode_to_string(uint8_t val);
 
 
 /* Private Function Definitions ----------------------------------------------- */
@@ -155,8 +159,6 @@ void setup() {
     init_web_server();
 
     init_ir_remote(); 
-
-    g_ac.stateReset();
 }
 
 void loop() {
@@ -275,14 +277,13 @@ void init_web_server() {
     });
 
     g_server.on(PSTR("/dashboard"), WebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request) {
-        
         auto format = F(
-            "<!DOCTYPE html>"
+            u8"<!DOCTYPE html>"
             "<html>"
                 "<head>"
                     "<title>" PRI_STRING "</title>"
-                    "<link rel='icon' type='image/x-icon' href='/favicon.ico'/>"
-                    "<meta http-equiv='Content-Type' content='text/html; charset=cp1251'>"
+                    //"<link rel='icon' type='image/x-icon' href='/favicon.ico'/>"
+                    "<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>"
                     //"<meta http-equiv='Refresh' content='1'/>"
                     "<style type='text/css'>"
                         "td{width: 150px;}"
@@ -293,9 +294,9 @@ void init_web_server() {
                     "<h2>Protocol TCL112AC</h2>"
                     "<table>"
                         "<tr><td class='prop'>Power</td><td>" PRI_STRING "</td></tr>" 
-                        "<tr><td class='prop'>Mode</td><td>" PRI_NUMBER "</td></tr>"
+                        "<tr><td class='prop'>Mode</td><td>" PRI_STRING " (" PRI_NUMBER ")" "</td></tr>"
                         "<tr><td class='prop'>Temp</td><td>" PRI_FLOAT "&deg;C</td></tr>" 
-                        "<tr><td class='prop'>Fan</td><td>" PRI_NUMBER "</td></tr>"
+                        "<tr><td class='prop'>Fan</td><td>" PRI_STRING " (" PRI_NUMBER ")" "</td></tr>"
                         "<tr><td class='prop'>Health</td><td>" PRI_STRING "</td></tr>"
                         "<tr><td class='prop'>Economy</td><td>" PRI_STRING "</td></tr>"
                         "<tr><td class='prop'>Light</td><td>" PRI_STRING "</td></tr>"
@@ -317,16 +318,18 @@ void init_web_server() {
         if(output.reserve(1024)){
             output.printf((const char*) format,
                 "ESP Debug",
-                g_ac.getPower() ? F("On") : F("Off"),
+                to_string(g_ac.getPower()),
+                mode_to_string(g_ac.getMode()),
                 g_ac.getMode(),
                 g_ac.getTemp(),
+                fan_to_string(g_ac.getFan()),
                 g_ac.getFan(),
-                g_ac.getHealth() ? F("On") : F("Off"),
-                g_ac.getEcono() ? F("On") : F("Off"),
-                g_ac.getLight() ? F("On") : F("Off"),
-                g_ac.getSwingHorizontal() ? F("On") : F("Off"),
-                g_ac.getSwingVertical() ? F("On") : F("Off"),
-                g_ac.getTurbo() ? F("On") : F("Off")
+                to_string(g_ac.getHealth()),
+                to_string(g_ac.getEcono()),
+                to_string(g_ac.getLight()),
+                to_string(g_ac.getSwingHorizontal()),
+                to_string(g_ac.getSwingVertical()),
+                to_string(g_ac.getTurbo())
             );
             out(PSTR("/dashboard"), 200);
             request->send(200, F("text/html"), (String)output);
@@ -482,6 +485,9 @@ void init_ir_remote() {
 
     // Transmitter
 
+    g_ac.stateReset();
+    g_ac.setPower(false);
+    g_ac.setLight(false);
     g_ac.begin();
     Serial.printf(PSTR("IR TX pin %d\n"), kSendPin);
 }
@@ -492,6 +498,53 @@ void out(const char * resource, int statusCode) {
         statusCode,
         resource
     );
+}
+
+const char * to_string(bool val) {
+    return val ? PSTR(u8"Вкл") : PSTR(u8"Выкл");
+}
+
+const char * fan_to_string(uint8_t val) {
+    const char* result = PSTR(u8"?");
+    switch (val)
+    {
+    case 0:
+        result = PSTR(u8"Авто");
+        break;
+    case 2:
+        result = PSTR(u8"Мин");
+        break;
+    case 3:
+        result = PSTR(u8"Сред");
+        break;
+    case 5:
+        result = PSTR(u8"Макс");
+        break;
+    }
+    return result;
+}
+
+const char * mode_to_string(uint8_t val) {
+    const char* result = PSTR(u8"?");
+    switch (val)
+    {
+    case 1:
+        result = PSTR(u8"Нагрев");
+        break;
+    case 2:
+        result = PSTR(u8"Осушение");
+        break;
+    case 3:
+        result = PSTR(u8"Охлаждение");
+        break;
+    case 7:
+        result = PSTR(u8"Вентиляция");
+        break;
+    case 8:
+        result = PSTR(u8"Авто");
+        break;
+    }
+    return result;
 }
 
 /*** end of file ***/
