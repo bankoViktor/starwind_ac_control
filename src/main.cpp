@@ -223,8 +223,8 @@ void init_web_server() {
         // https://openconnectivity.org/upnp-specs/UPnP-arch-DeviceArchitecture-v2.0-20200417.pdf#page=50
 
         auto format = F(
-            "<?xml version='1.0'?>"
-            "<root xmlns='urn:schemas-upnp-org:device-1-0' configId='0'>"
+            u8"<?xml version=\"1.0\"?>"
+            "<root xmlns=\"urn:schemas-upnp-org:device-1-0\" configId=\"0\">"
                 "<specVersion>"
                     "<major>2</major>"
                     "<minor>0</minor>"
@@ -282,10 +282,10 @@ void init_web_server() {
             "<html>"
                 "<head>"
                     "<title>" PRI_STRING "</title>"
-                    //"<link rel='icon' type='image/x-icon' href='/favicon.ico'/>"
-                    "<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>"
-                    //"<meta http-equiv='Refresh' content='1'/>"
-                    "<style type='text/css'>"
+                    //"<link rel=\"icon\" type=\"image/x-icon\" href=\"/favicon.ico\"/>"
+                    "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">"
+                    //"<meta http-equiv=\"Refresh\" content=\"1\"/>"
+                    "<style type=\"text/css\">"
                         "td{width: 150px;}"
                         ".prop{font-weight:bold;}"
                     "</style>"
@@ -293,19 +293,19 @@ void init_web_server() {
                 "<body>"
                     "<h2>Protocol TCL112AC</h2>"
                     "<table>"
-                        "<tr><td class='prop'>Power</td><td>" PRI_STRING "</td></tr>" 
-                        "<tr><td class='prop'>Mode</td><td>" PRI_STRING " (" PRI_NUMBER ")" "</td></tr>"
-                        "<tr><td class='prop'>Temp</td><td>" PRI_FLOAT "&deg;C</td></tr>" 
-                        "<tr><td class='prop'>Fan</td><td>" PRI_STRING " (" PRI_NUMBER ")" "</td></tr>"
-                        "<tr><td class='prop'>Health</td><td>" PRI_STRING "</td></tr>"
-                        "<tr><td class='prop'>Economy</td><td>" PRI_STRING "</td></tr>"
-                        "<tr><td class='prop'>Light</td><td>" PRI_STRING "</td></tr>"
-                        "<tr><td class='prop'>Swing Horizontal</td><td>" PRI_STRING "</td></tr>"
-                        "<tr><td class='prop'>Swing Vertical</td><td>" PRI_STRING "</td></tr>"
-                        "<tr><td class='prop'>Turbo</td><td>" PRI_STRING "</td></tr>"
+                        "<tr><td class=\"prop\">Power</td><td>" PRI_STRING "</td></tr>" 
+                        "<tr><td class=\"prop\">Mode</td><td>" PRI_STRING " (" PRI_NUMBER ")" "</td></tr>"
+                        "<tr><td class=\"prop\">Temp</td><td>" PRI_FLOAT "&deg;C</td></tr>" 
+                        "<tr><td class=\"prop\">Fan</td><td>" PRI_STRING " (" PRI_NUMBER ")" "</td></tr>"
+                        "<tr><td class=\"prop\">Health</td><td>" PRI_STRING "</td></tr>"
+                        "<tr><td class=\"prop\">Economy</td><td>" PRI_STRING "</td></tr>"
+                        "<tr><td class=\"prop\">Light</td><td>" PRI_STRING "</td></tr>"
+                        "<tr><td class=\"prop\">Swing Horizontal</td><td>" PRI_STRING "</td></tr>"
+                        "<tr><td class=\"prop\">Swing Vertical</td><td>" PRI_STRING "</td></tr>"
+                        "<tr><td class=\"prop\">Turbo</td><td>" PRI_STRING "</td></tr>"
                     "</table>"
-                    "<button id='btn_send'>Send</button>"
-                    "<script type='text/javascript'>"
+                    "<button id=\"btn_send\">Send</button>"
+                    "<script type=\"text/javascript\">"
                         "document.querySelector('#btn_send').onclick = function(e){"
                             "fetch('/api/send')"
                         "}"
@@ -341,17 +341,16 @@ void init_web_server() {
 
     g_server.on(PSTR("/api/state"), WebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request) {
         auto format = F( 
-            "{"
+            u8"{"
                 "\"model\":\"" SSDP_MANUFACTURER " " SSDP_MODEL_NAME "\","
-                "\"power\":%s,"
-                "\"targetTemp\":%f"
+                "\"power\":" PRI_STRING ","
+                "\"targetTemp\":" PRI_FLOAT ""
             "}"
         );
 
         StreamString output;
         if(output.reserve(1024)){
             output.printf((const char*) format,
-                SSDP_MANUFACTURER " " SSDP_MODEL_NAME,
                 g_ac.getPower() ? F("true") : F("false"),
                 g_ac.getTemp()
             );
