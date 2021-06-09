@@ -487,7 +487,7 @@ void init_ir_remote() {
 #endif  // DECODE_HASH
 
     g_irrecv.setTolerance(kTolerancePercentage);  // Override the default tolerance.
-    g_irrecv.enableIRIn();  // Start the receiver
+    g_irrecv.enableIRIn(true);  // Start the receiver with PULL-UP
 
     Serial.printf(PSTR("IR RX pin %d\n"), kRecvPin);
 
