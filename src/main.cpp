@@ -144,7 +144,7 @@ const uint8_t kTolerancePercentage = kTolerance;  // kTolerance is normally 25%
 /* Private Variables ---------------------------------------------------------- */
 
 IRrecv g_irrecv(kRecvPin, kCaptureBufferSize, kTimeout, true);
-IRTcl112Ac g_ac(kSendPin, true, false);
+IRTcl112Ac g_ac(kSendPin, false, false);
 AsyncWebServer g_server(kWebServerPort);
 
 
@@ -355,6 +355,9 @@ void init_web_server() {
     g_server.on(PSTR("/api/send"), WebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request) {
 
         g_ac.setTemp(18);
+        // g_ac.setMode(3); // cooling
+        g_ac.setPower(true);
+        g_ac.setLight(true);
         g_ac.send();
 
         out(request->url(), 204);
