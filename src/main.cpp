@@ -26,6 +26,8 @@
 #include <ESPAsyncWebServer.h>
 #include <StreamString.h>
 #include <inttypes.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
 
 
 /* Private Constants ---------------------------------------------------------- */
@@ -114,6 +116,9 @@ const uint16_t kMinUnknownSize = 12;
 const uint8_t kTolerancePercentage = kTolerance;  // kTolerance is normally 25%
 
 
+const uint8_t kTempSensorPin = D3;
+const uint32_t kTempInterval = 5000;
+
 /* Private Definitions -------------------------------------------------------- */
 
 // Change to `true` if you miss/need the old "Raw Timing[]" display.
@@ -147,6 +152,11 @@ IRrecv g_irrecv(kRecvPin, kCaptureBufferSize, kTimeout, true);
 IRTcl112Ac g_ac(kSendPin, false, false);
 AsyncWebServer g_server(kWebServerPort);
 
+OneWire oneWire(kTempSensorPin);
+DallasTemperature sensors(&oneWire);
+unsigned long g_last_temp_handled;
+float g_temp;
+
 
 /* Private Function Declarations ---------------------------------------------- */
 
@@ -156,6 +166,8 @@ bool init_wifi();
 void init_ssdp();
 void init_web_server();
 void init_ir_remote();
+void init_thermometer();
+void thermometer_handler();
 void out(const String& request_url, int statusCode);
 void ir_handler();
 const char * to_string(bool val);
@@ -172,14 +184,14 @@ void setup() {
     if (!init_wifi()) return;
 
     init_ssdp();
-
     init_web_server();
-
     init_ir_remote(); 
+    init_thermometer();
 }
 
 void loop() {
     ir_handler();
+    thermometer_handler();
 }
 
 void ir_handler() {
@@ -354,11 +366,13 @@ void init_web_server() {
 
     g_server.on(PSTR("/api/send"), WebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request) {
 
-        g_ac.setTemp(18);
-        // g_ac.setMode(3); // cooling
-        g_ac.setPower(true);
-        g_ac.setLight(true);
-        g_ac.send();
+        // g_ac.setTemp(18);
+        // // g_ac.setMode(3); // cooling
+        // g_ac.setPower(true);
+        // g_ac.setLight(true);
+        // g_ac.send();
+
+        printf("Current Temp %g C\n", g_temp);
 
         out(request->url(), 204);
         request->send(204);
@@ -501,6 +515,40 @@ void init_ir_remote() {
     g_ac.setLight(false);
     g_ac.begin();
     Serial.printf(PSTR("IR TX pin %d\n"), kSendPin);
+}
+
+void init_thermometer() {
+    sensors.begin();
+    sensors.setWaitForConversion(false);  // makes it async
+
+    Serial.printf("Found %i devices\n", sensors.getDeviceCount());
+
+    g_last_temp_handled = millis();
+}
+
+void thermometer_handler() {
+
+    auto dt = millis() - g_last_temp_handled;
+
+    if (dt < kTempInterval) {
+        return;
+    } 
+
+    // read
+    auto result = sensors.getTempCByIndex(0);
+    if (result == DEVICE_DISCONNECTED_C) {
+        printf("Temp sensor disconnected\n");
+        g_temp = 0;
+        return;
+    } 
+    
+    g_temp = result;
+
+    sensors.requestTemperatures();
+
+    //printf(u8"Read temp %g C\n", g_temp);
+
+    g_last_temp_handled = millis();
 }
 
 void out(const String& request_url, int statusCode) {
