@@ -65,7 +65,7 @@ inline void introduce()
 }
 
 bool init_wifi() {
-    Serial.print(PSTR("Wi-Fi connecting..."));
+    Serial.print(PSTR("Wi-Fi connecting......"));
 
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password);
@@ -75,24 +75,23 @@ bool init_wifi() {
         return false;
     }
 
-    Serial.printf(PSTR("CONNECTED (IP %s)\n"), WiFi.localIP().toString().c_str());
+    Serial.printf(PSTR("DONE (IP %s)\n"), WiFi.localIP().toString().c_str());
 
     return true;
 }
 
 void init_ir_remote() {
+    Serial.print(PSTR("IR initialization....."));
 
     // Receiver
 
 #if DECODE_HASH
-    // Ignore messages with less than minimum on or off pulses.
-    g_irrecv.setUnknownThreshold(kMinUnknownSize);
+    
+    g_irrecv.setUnknownThreshold(kMinUnknownSize);  // Ignore messages with less than minimum on or off pulses.
 #endif  // DECODE_HASH
 
-    g_irrecv.setTolerance(kTolerancePercentage);  // Override the default tolerance.
-    g_irrecv.enableIRIn(true);  // Start the receiver with PULL-UP
-
-    Serial.printf(PSTR("IR RX pin %d\n"), kRecvPin);
+    g_irrecv.setTolerance(kTolerancePercentage);    // Override the default tolerance.
+    g_irrecv.enableIRIn(true);                      // Start the receiver with PULL-UP
 
     // Transmitter
 
@@ -100,19 +99,13 @@ void init_ir_remote() {
     g_ac.setPower(false);
     g_ac.setLight(false);
     g_ac.begin();
-    Serial.printf(PSTR("IR TX pin %d\n"), kSendPin);
-}
 
-// void out(const String& request_url, int statusCode) {
-//     Serial.printf(
-//         (const char*) F(" - HTTP %3d for %s\n"),
-//         statusCode,
-//         request_url.c_str()
-//     );
-// }
+    Serial.printf(PSTR("DONE (RX pin %d, TX pin %d)"), kRecvPin, kSendPin);
+}
 
 void ir_handler() {
     decode_results results;
+
     if (g_irrecv.decode(&results)) {
 
         Serial.print(resultToHumanReadableBasic(&results));
