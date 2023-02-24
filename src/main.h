@@ -37,7 +37,7 @@
 #endif // !RELEASE
 
 #define PROJECT_NAME             "MQTT Air Conditioner remote controller on Wi-Fi"
-#define PROJECT_VERSION          stringify(VERSION)
+#define PROJECT_VERSION          "0.0.1"
 #define PROJECT_DATE             __DATE__
 #define PROJECT_AC_MANUFACTURER  "STARWIND"
 #define PROJECT_AC_MODEL         "TAC-12CHSA/XA81"
@@ -48,25 +48,26 @@
 
 #define MQTT_HOST                "192.168.1.2"
 #define MQTT_PORT                1883
-#define MQTT_CLIENT_ID           "Air Conditioner " PROJECT_AC_MANUFACTURER " " PROJECT_AC_MODEL
-#define MQTT_USER                ""
-#define MQTT_PASS                ""
-#define MQTT_TOPIC_ROOT          "AC_" PROJECT_AC_MANUFACTURER "_SN" PROJECT_AC_SERIAL_NUMBER
-#define MQTT_TOPIC_STATUS        "status" // Статус:                  ON | OFF
-#define MQTT_TOPIC_MODE          "mode"   // Режим:                   HEAT | DRY | COOL
-#define MQTT_TOPIC_TEMP          "temp"   // Температура (°C):        23.1
-#define MQTT_TOPIC_FAN           "fan"    // Скорость вентилятора     AUTO | LOW | MIDDLE | HIGH
-#define MQTT_TOPIC_SOME          "..."    //
+#define MQTT_CLIENT_ID           "AC_" PROJECT_AC_MANUFACTURER "_SN" PROJECT_AC_SERIAL_NUMBER
+// #define MQTT_USER                ""
+// #define MQTT_PASS                ""
+#define MQTT_RECONNECT_INTERVAL  3
+#define MQTT_TOPIC_ROOT          "devices/" MQTT_CLIENT_ID
+#define MQTT_TOPIC_POWER         MQTT_TOPIC_ROOT "/power" // Статус:                        ON | OFF
+#define MQTT_TOPIC_MODE          MQTT_TOPIC_ROOT "/mode"  // Режим:                         AUTO | COOL | HEAT | DRY
+#define MQTT_TOPIC_TEMP          MQTT_TOPIC_ROOT "/temp"  // Температура (0.5 °C шаг):      ??.0 - ??.0
+#define MQTT_TOPIC_FAN           MQTT_TOPIC_ROOT "/fan"   // Скорость вентилятора           AUTO | LOW | MIDDLE | HIGH
+#define MQTT_TOPIC_SOME          MQTT_TOPIC_ROOT "/..."   //
 
 // An IR detector/demodulator is connected to GPIO pin 14
 // e.g. D5 on a NodeMCU board.
 // Note: GPIO 16 won't work on the ESP8266 as it does not have interrupts.
-#define IR_RX_PIN D5
-#define IR_TX_PIN D6
+#define IR_RX_PIN                D5
+#define IR_TX_PIN                D6
 
 // As this program is a special purpose capture/decoder, let us use a larger
 // than normal buffer so we can handle Air Conditioner remote codes.
-#define IR_CAPTURE_BUFFER_SIZE 512
+#define IR_CAPTURE_BUFFER_SIZE   512
 
 // IR_TIMEOUT is the Nr. of milli-Seconds of no-more-data before we consider a
 // message ended.
@@ -86,7 +87,7 @@
 
 // Some A/C units have gaps in their protocols of ~40ms. e.g. Kelvinator
 // A value this large may swallow repeats of some protocols
-#define IR_TIMEOUT 50
+#define IR_TIMEOUT               50
 
 // Alternatives:
 // IR_TIMEOUT = 90;
@@ -113,7 +114,7 @@
 // Set lower if you are sure your setup is working, but it doesn't see messages
 // from your device. (e.g. Other IR remotes work.)
 // NOTE: Set this value very high to effectively turn off UNKNOWN detection.
-#define IR_MIN_UNKNOWN_SIZE 12
+#define IR_MIN_UNKNOWN_SIZE      12
 
 // How much percentage lee way do we give to incoming signals in order to match
 // it?
@@ -123,7 +124,7 @@
 //       to no longer match correctly. In normal situations you probably do not
 //       need to adjust this value. Typically that's when the library detects
 //       your remote's message some of the time, but not all of the time.
-#define IR_TOLERAMCE_PERCENTAGE kTolerance // kTolerance is normally 25%
+#define IR_TOLERAMCE_PERCENTAGE  kTolerance // kTolerance is normally 25%
 
 #endif // __SRC_MAIN_H
 

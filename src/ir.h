@@ -22,14 +22,20 @@
 /* Public Includes ------------------------------------------------------------ */
 
 #include <Arduino.h>
+#include <IRac.h>
 
 /* Public Function Declarations ----------------------------------------------- */
 
-void        ir_init();
-void        ir_loop();
-const char *ir_bool_string(bool val);
-const char *ir_fan_to_string(uint8_t val);
-const char *ir_mode_to_string(uint8_t val);
+void         ir_init();
+void         ir_loop();
+bool         ir_set_power(const char *val, uint8_t len);
+const char  *ir_get_power();
+bool         ir_set_mode(const char *val, uint8_t len);
+const char  *ir_get_mode();
+bool         ir_set_fan(const char *val, uint8_t len);
+const char  *ir_get_fan();
+bool         ir_set_temp(const char *val, uint8_t len);
+const String ir_get_temp();
 
 #endif // __SRC_IR_H
 

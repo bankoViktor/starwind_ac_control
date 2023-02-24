@@ -22,81 +22,115 @@
 #include <AsyncMqttClient.h>
 #include <Ticker.h>
 
+#include "ir.h"
 #include "main.h"
 #include "wifi.h"
 
 /* Private Variables ---------------------------------------------------------- */
 
-AsyncMqttClient g_mqttClient;
-Ticker          g_mqttReconnectTimer;
+static AsyncMqttClient g_mqtt_client;
+static Ticker          g_mqtt_reconnect_timer;
 
 /* Private Function Declarations ---------------------------------------------- */
 
-static void onMqttConnectCallback(bool sessionPresent);
-static void onMqttDisconnectCallback(AsyncMqttClientDisconnectReason reason);
-static void onMqttSubscribeCallback(uint16_t packetId, uint8_t qos);
-static void onMqttUnsubscribeCallback(uint16_t packetId);
-static void onMqttMessageCallback(char *topic, char *payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total);
-static void onMqttPublishCallback(uint16_t packetId);
+static void mqtt_on_connect_callback(bool sessionPresent);
+static void mqtt_on_disconnect_callback(AsyncMqttClientDisconnectReason reason);
+static void mqtt_on_subscribe_callback(uint16_t packetId, uint8_t qos);
+static void mqtt_on_unsubscribe_callback(uint16_t packetId);
+static void mqtt_on_message_callback(char *topic, char *payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total);
+static void mqtt_on_publish_callback(uint16_t packetId);
 
 /* Public Function Definitions ------------------------------------------------ */
 
 void mqtt_init() {
-    g_mqttClient.onConnect(onMqttConnectCallback);
-    g_mqttClient.onDisconnect(onMqttDisconnectCallback);
-    g_mqttClient.onSubscribe(onMqttSubscribeCallback);
-    g_mqttClient.onUnsubscribe(onMqttUnsubscribeCallback);
-    g_mqttClient.onMessage(onMqttMessageCallback);
-    g_mqttClient.onPublish(onMqttPublishCallback);
-
-    g_mqttClient.setServer(MQTT_HOST, MQTT_PORT);
-    g_mqttClient.setClientId(MQTT_CLIENT_ID);
-    g_mqttClient.setCredentials(MQTT_USER, MQTT_PASS);
+    g_mqtt_client.onConnect(mqtt_on_connect_callback);
+    g_mqtt_client.onDisconnect(mqtt_on_disconnect_callback);
+    g_mqtt_client.onSubscribe(mqtt_on_subscribe_callback);
+    g_mqtt_client.onUnsubscribe(mqtt_on_unsubscribe_callback);
+    g_mqtt_client.onMessage(mqtt_on_message_callback);
+    g_mqtt_client.onPublish(mqtt_on_publish_callback);
+    g_mqtt_client.setServer(MQTT_HOST, MQTT_PORT);
+    g_mqtt_client.setClientId(MQTT_CLIENT_ID);
+#if defined(MQTT_USER) && defined(MQTT_PASS)
+    g_mqtt_client.setCredentials(MQTT_USER, MQTT_PASS);
+#endif
 }
 
 void mqtt_connect() {
     Serial.println(PSTR("Connecting to MQTT..."));
 
-    g_mqttClient.connect();
+    g_mqtt_client.connect();
 }
 
 void mqtt_disconnect() {
-    g_mqttReconnectTimer.detach(); // ensure we don't reconnect to MQTT while reconnecting to Wi-Fi
+    g_mqtt_reconnect_timer.detach(); // ensure we don't reconnect to MQTT while reconnecting to Wi-Fi
 }
 
 /* Private Function Definitions ----------------------------------------------- */
 
-static void onMqttConnectCallback(bool sessionPresent) {
+static void mqtt_on_connect_callback(bool sessionPresent) {
     Serial.printf(PSTR("Connected to MQTT. Session present %s\n"), sessionPresent ? PSTR("YES") : PSTR("NO"));
 
-    uint16_t packetIdSub = g_mqttClient.subscribe("test/lol", 2);
-    Serial.print("Subscribing at QoS 2, packetId: ");
-    Serial.println(packetIdSub);
+    // Subscribe
+    g_mqtt_client.subscribe(MQTT_TOPIC_POWER, 0);
+    g_mqtt_client.subscribe(MQTT_TOPIC_MODE, 0);
+    g_mqtt_client.subscribe(MQTT_TOPIC_FAN, 0);
+    g_mqtt_client.subscribe(MQTT_TOPIC_TEMP, 0);
+
+    // g_mqtt_client.publish(MQTT_TOPIC_POWER, 2, true, powerStr);
+    // g_mqtt_client.publish(MQTT_TOPIC_MODE, 2, true, ir_get_mode());
+    // g_mqtt_client.publish(MQTT_TOPIC_TEMP, 2, true, tempStr.c_str());
 }
 
-static void onMqttDisconnectCallback(AsyncMqttClientDisconnectReason reason) {
-    Serial.println(PSTR("Disconnected from MQTT."));
+static void mqtt_on_disconnect_callback(AsyncMqttClientDisconnectReason reason) {
+    Serial.print(PSTR("Disconnected from MQTT"));
 
     if (WiFi.isConnected()) {
-        g_mqttReconnectTimer.once(2, mqtt_connect);
+        Serial.printf(", reconnect after %i seconds.", MQTT_RECONNECT_INTERVAL);
+
+        g_mqtt_reconnect_timer.once(MQTT_RECONNECT_INTERVAL, mqtt_connect);
     }
+
+    Serial.println();
 }
 
-static void onMqttSubscribeCallback(uint16_t packetId, uint8_t qos) {
+static void mqtt_on_subscribe_callback(uint16_t packetId, uint8_t qos) {
     Serial.printf(PSTR("Subscribe acknowledged. Packet Id %i, QOS %i\n"), packetId, qos);
 }
 
-static void onMqttUnsubscribeCallback(uint16_t packetId) {
+static void mqtt_on_unsubscribe_callback(uint16_t packetId) {
     Serial.printf(PSTR("Unsubscribe acknowledged. Packet Id %i\n"), packetId);
 }
 
-static void onMqttMessageCallback(char *topic, char *payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) {
-    Serial.printf(PSTR("Publish received for %s - %s\n"), topic, payload);
+static void mqtt_on_message_callback(char *topic, char *payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) {
+    char buff[32] = {0};
+    strncpy(buff, payload, len);
+    Serial.printf(PSTR("Publish received for topic \"%s\" value \"%s\" (len %i, index %i, total %i)\n"), topic, buff, len, index, total);
 
-    // TODO magic communication
+    if (strcmp(topic, MQTT_TOPIC_POWER) == 0) { // POWER
+        if (!ir_set_power(payload, len)) {
+            // re write current valid value
+            g_mqtt_client.publish(MQTT_TOPIC_POWER, 2, true, ir_get_power());
+        }
+    } else if (strcmp(topic, MQTT_TOPIC_MODE) == 0) { // MODE
+        if (!ir_set_mode(payload, len)) {
+            // re write current valid value
+            g_mqtt_client.publish(MQTT_TOPIC_MODE, 2, true, ir_get_mode());
+        }
+    } else if (strcmp(topic, MQTT_TOPIC_FAN) == 0) { // FAN
+        if (!ir_set_fan(payload, len)) {
+            // re write current valid value
+            g_mqtt_client.publish(MQTT_TOPIC_FAN, 2, true, ir_get_fan());
+        }
+    } else if (strcmp(topic, MQTT_TOPIC_TEMP) == 0) { // TEMP
+        if (!ir_set_temp(payload, len)) {
+            // re write current valid value
+            g_mqtt_client.publish(MQTT_TOPIC_TEMP, 2, true, ir_get_temp().c_str());
+        }
+    }
 }
 
-static void onMqttPublishCallback(uint16_t packetId) {
+static void mqtt_on_publish_callback(uint16_t packetId) {
     Serial.printf(PSTR("Publish acknowledged. Packet Id %i\n"), packetId);
 }
 

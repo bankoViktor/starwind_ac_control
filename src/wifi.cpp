@@ -24,14 +24,14 @@
 
 /* Private Variables ---------------------------------------------------------- */
 
-WiFiEventHandler g_wifiConnectHandler;
-WiFiEventHandler g_wifiDisconnectedHandler;
-Ticker           g_wifiReconnectTimer;
+static WiFiEventHandler g_wifi_connect_handler;
+static WiFiEventHandler g_wifi_disconnected_handler;
+static Ticker           g_wifi_reconnect_timer;
 
 /* Private Function Declarations ---------------------------------------------- */
 
-static void onWifiGotIPCallback(const WiFiEventStationModeGotIP &e);
-static void onWifiDisconnectedCallback(const WiFiEventStationModeDisconnected &e);
+static void wifi_on_got_ip_callback(const WiFiEventStationModeGotIP &e);
+static void wifi_on_disconnected_callback(const WiFiEventStationModeDisconnected &e);
 
 /* Public Function Definitions ------------------------------------------------ */
 
@@ -39,8 +39,8 @@ void wifi_init() {
     WiFi.disconnect();
     WiFi.persistent(false);
 
-    g_wifiConnectHandler = WiFi.onStationModeGotIP(onWifiGotIPCallback);
-    g_wifiDisconnectedHandler = WiFi.onStationModeDisconnected(onWifiDisconnectedCallback);
+    g_wifi_connect_handler = WiFi.onStationModeGotIP(wifi_on_got_ip_callback);
+    g_wifi_disconnected_handler = WiFi.onStationModeDisconnected(wifi_on_disconnected_callback);
 }
 
 void wifi_connect() {
@@ -52,18 +52,18 @@ void wifi_connect() {
 
 /* Private Function Definitions ----------------------------------------------- */
 
-static void onWifiGotIPCallback(const WiFiEventStationModeGotIP &e) {
+static void wifi_on_got_ip_callback(const WiFiEventStationModeGotIP &e) {
     Serial.printf(PSTR("Connected to Wi-Fi. IP %s\n"), WiFi.localIP().toString().c_str());
 
     mqtt_connect();
 }
 
-static void onWifiDisconnectedCallback(const WiFiEventStationModeDisconnected &e) {
+static void wifi_on_disconnected_callback(const WiFiEventStationModeDisconnected &e) {
     Serial.println(PSTR("Disconnected from Wi-Fi."));
 
     mqtt_disconnect();
 
-    g_wifiReconnectTimer.once(2, wifi_connect);
+    g_wifi_reconnect_timer.once(2, wifi_connect);
 }
 
 /*** end of file ***/

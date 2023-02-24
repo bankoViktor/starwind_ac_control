@@ -1,13 +1,27 @@
+/**
+ ******************************************************************************
+ * @file    main.c
+ * @author  Banko Viktor S. (bankviktor14@gmail.com)
+ * @version V1.0.0
+ * @date    24-Feb-2023
+ * @brief   Main source file of project.
+ ******************************************************************************
+ * @attention
+ *
+ * <h2><center>&copy; Copyright (c) 2023 Banko Viktor S.
+ * All rights reserved.</center></h2>
+ *
+ ******************************************************************************
+ */
+
 /* Private Includes ----------------------------------------------------------- */
 
 #include "main.h"
 
+#include "ir.h"
 #include "mqtt.h"
 #include "wifi.h"
 
-/* Private Constants ---------------------------------------------------------- */
-/* Private Definitions -------------------------------------------------------- */
-/* Private Variables ---------------------------------------------------------- */
 /* Private Function Declarations ---------------------------------------------- */
 
 void setup();
@@ -20,6 +34,7 @@ void setup() {
     serial_init();
     wifi_init();
     mqtt_init();
+    ir_init();
 
     wifi_connect();
 }
@@ -33,16 +48,17 @@ void serial_init() {
 
     Serial.print(PSTR(
         "\n"
-        "\n==============================================="
-        "\n " PROJECT_NAME
-        "\n " PROJECT_CONFIGURATION " " PROJECT_VERSION " (" PROJECT_DATE
-        ")"
-        "\n by Banko Viktor <bankviktor14@gmail.com>"
-        "\n-----------------------------------------------"
-        "\nAC MANUFACTURER      : " PROJECT_AC_MANUFACTURER
-        "\nAC MODEL             : " PROJECT_AC_MODEL
-        "\nAC SERIAL NUMBER     : " PROJECT_AC_SERIAL_NUMBER
-        "\n===============================================\n"
+        "===============================================\n"
+        " " PROJECT_NAME "\n"
+        " " PROJECT_CONFIGURATION " " PROJECT_VERSION " (" PROJECT_DATE ")\n"
+        "\n"
+        " by Banko Viktor <bankviktor14@gmail.com>\n"
+        "-----------------------------------------------\n"
+        "AC MANUFACTURER      : " PROJECT_AC_MANUFACTURER "\n"
+        "AC MODEL             : " PROJECT_AC_MODEL "\n"
+        "AC SERIAL NUMBER     : " PROJECT_AC_SERIAL_NUMBER "\n"
+        "===============================================\n"
+        "\n"
         "\n"));
 }
 
