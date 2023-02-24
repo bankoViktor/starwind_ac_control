@@ -1,14 +1,17 @@
-/*
- * main.h
+/**
+ ******************************************************************************
+ * @file    main.h
+ * @author  Banko Viktor S. (bankviktor14@gmail.com)
+ * @version V1.0.0
+ * @date    24-Feb-2023
+ * @brief   Header of main source file of project.
+ ******************************************************************************
+ * @attention
  *
- * MQTT Air Conditioner remote controller on Wi-Fi
- * for AC STARWIND TAC-12CHSA/XA81
+ * <h2><center>&copy; Copyright (c) 2023 Banko Viktor S.
+ * All rights reserved.</center></h2>
  *
- * Copyright 2023 Banko Viktor <bankviktor14@gmail.com>
-
- * Changes:
- *   Version 0.0 June, 2021
- *     - init project and repos.
+ ******************************************************************************
  */
 
 #ifndef __SRC_MAIN_H
@@ -122,6 +125,6 @@
 //       your remote's message some of the time, but not all of the time.
 #define IR_TOLERAMCE_PERCENTAGE kTolerance // kTolerance is normally 25%
 
-#endif // !__SRC_MAIN_H
+#endif // __SRC_MAIN_H
 
 /*** end of file ***/
