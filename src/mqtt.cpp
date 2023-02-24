@@ -68,14 +68,20 @@ void mqtt_disconnect() {
 
 /* Private Function Definitions ----------------------------------------------- */
 
+static inline uint16_t mqtt_subscribe(const char* topic, uint8_t qos) {
+    uint16_t packetId = g_mqtt_client.subscribe(topic, qos);
+    Serial.printf(PSTR("Subscribed to topic \"%s\" QoS %i\n"), topic, qos);
+    return packetId;
+}
+
 static void mqtt_on_connect_callback(bool sessionPresent) {
     Serial.printf(PSTR("Connected to MQTT. Session present %s\n"), sessionPresent ? PSTR("YES") : PSTR("NO"));
 
     // Subscribe
-    g_mqtt_client.subscribe(MQTT_TOPIC_POWER, 0);
-    g_mqtt_client.subscribe(MQTT_TOPIC_MODE, 0);
-    g_mqtt_client.subscribe(MQTT_TOPIC_FAN, 0);
-    g_mqtt_client.subscribe(MQTT_TOPIC_TEMP, 0);
+    mqtt_subscribe(MQTT_TOPIC_POWER, 0);
+    mqtt_subscribe(MQTT_TOPIC_MODE, 0);
+    mqtt_subscribe(MQTT_TOPIC_FAN, 0);
+    mqtt_subscribe(MQTT_TOPIC_TEMP, 0);
 
     // g_mqtt_client.publish(MQTT_TOPIC_POWER, 2, true, powerStr);
     // g_mqtt_client.publish(MQTT_TOPIC_MODE, 2, true, ir_get_mode());
@@ -105,28 +111,38 @@ static void mqtt_on_unsubscribe_callback(uint16_t packetId) {
 static void mqtt_on_message_callback(char *topic, char *payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) {
     char buff[32] = {0};
     strncpy(buff, payload, len);
-    Serial.printf(PSTR("Publish received for topic \"%s\" value \"%s\" (len %i, index %i, total %i)\n"), topic, buff, len, index, total);
+    Serial.printf(PSTR("Received: topic \"%s\", value \"%s\" (len %i, index %i, total %i)\n"), topic, buff, len, index, total);
 
     if (strcmp(topic, MQTT_TOPIC_POWER) == 0) { // POWER
         if (!ir_set_power(payload, len)) {
             // re write current valid value
             g_mqtt_client.publish(MQTT_TOPIC_POWER, 2, true, ir_get_power());
+        } else {
+            Serial.printf("Change POWER to %s\n", ir_get_power());
         }
     } else if (strcmp(topic, MQTT_TOPIC_MODE) == 0) { // MODE
         if (!ir_set_mode(payload, len)) {
             // re write current valid value
             g_mqtt_client.publish(MQTT_TOPIC_MODE, 2, true, ir_get_mode());
+        } else {
+            Serial.printf("Change MODE to %s\n", ir_get_mode());
         }
     } else if (strcmp(topic, MQTT_TOPIC_FAN) == 0) { // FAN
         if (!ir_set_fan(payload, len)) {
             // re write current valid value
             g_mqtt_client.publish(MQTT_TOPIC_FAN, 2, true, ir_get_fan());
+        } else {
+            Serial.printf("Change FAN to %s\n", ir_get_fan());
         }
     } else if (strcmp(topic, MQTT_TOPIC_TEMP) == 0) { // TEMP
         if (!ir_set_temp(payload, len)) {
             // re write current valid value
             g_mqtt_client.publish(MQTT_TOPIC_TEMP, 2, true, ir_get_temp().c_str());
+        } else {
+            Serial.printf("Change TEMP to %s\n", ir_get_temp().c_str());
         }
+    } else {
+        Serial.printf("Unexception topic \"%s\"\n", topic);
     }
 }
 
