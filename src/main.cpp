@@ -49,10 +49,10 @@ void serial_init() {
     Serial.print(PSTR(
         "\n"
         "===============================================\n"
-        " " PROJECT_NAME "\n"
-        " " PROJECT_CONFIGURATION " " PROJECT_VERSION " (" PROJECT_DATE ")\n"
+        "" PROJECT_NAME "\n"
+        "" PROJECT_CONFIGURATION " " PROJECT_VERSION " (" PROJECT_DATE ")\n"
         "\n"
-        " by Banko Viktor <bankviktor14@gmail.com>\n"
+        "by Banko Viktor <bankviktor14@gmail.com>\n"
         "-----------------------------------------------\n"
         "AC MANUFACTURER      : " PROJECT_AC_MANUFACTURER "\n"
         "AC MODEL             : " PROJECT_AC_MODEL "\n"
