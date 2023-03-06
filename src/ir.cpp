@@ -66,7 +66,7 @@ void ir_init() {
     g_ir_ac.begin();
 }
 
-void ir_loop() {
+void ir_loop_handle() {
     decode_results results;
 
     if (g_ir_recv.decode(&results)) {

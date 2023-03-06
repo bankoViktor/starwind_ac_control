@@ -27,7 +27,7 @@
 /* Public Function Declarations ----------------------------------------------- */
 
 void         ir_init();
-void         ir_loop();
+void         ir_loop_handle();
 bool         ir_set_power(const char *val, uint8_t len);
 const char  *ir_get_power();
 bool         ir_set_mode(const char *val, uint8_t len);
