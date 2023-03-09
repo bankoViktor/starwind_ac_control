@@ -20,6 +20,7 @@
 
 #include "ir.h"
 #include "mqtt.h"
+#include "ota.h"
 #include "wifi.h"
 
 /* Private Function Declarations ---------------------------------------------- */
@@ -34,12 +35,15 @@ void setup() {
     serial_init();
     wifi_init();
     mqtt_init();
+    ota_init();
     ir_init();
 
     wifi_connect();
 }
 
-void loop() {}
+void loop() {
+    ota_loop_handle();
+}
 
 void serial_init() {
     Serial.begin(SERIAL_BAUD, SERIAL_8N1, SERIAL_TX_ONLY);

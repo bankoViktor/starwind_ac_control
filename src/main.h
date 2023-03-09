@@ -46,6 +46,10 @@
 #define WIFI_SSID                "SynMaminoyPodrugi"
 #define WIFI_PASS                "Fazxery497"
 
+#define OTA_HOSTNAME             PROJECT_AC_MANUFACTURER
+#define OTA_PASSWORD             "admin"
+#define OTA_PORT                 8266
+
 #define MQTT_HOST                "192.168.1.2"
 #define MQTT_PORT                1883
 #define MQTT_CLIENT_ID           "AC_" PROJECT_AC_MANUFACTURER "_SN" PROJECT_AC_SERIAL_NUMBER
