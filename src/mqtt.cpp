@@ -68,7 +68,7 @@ void mqtt_disconnect() {
 
 /* Private Function Definitions ----------------------------------------------- */
 
-static inline uint16_t mqtt_subscribe(const char* topic, uint8_t qos) {
+static inline uint16_t mqtt_subscribe(const char *topic, uint8_t qos) {
     uint16_t packetId = g_mqtt_client.subscribe(topic, qos);
     Serial.printf(PSTR("Subscribed to topic \"%s\" QoS %i\n"), topic, qos);
     return packetId;

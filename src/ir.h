@@ -26,16 +26,16 @@
 
 /* Public Function Declarations ----------------------------------------------- */
 
-void         ir_init();
-void         ir_loop_handle();
-bool         ir_set_power(const char *val, uint8_t len);
-const char  *ir_get_power();
-bool         ir_set_mode(const char *val, uint8_t len);
-const char  *ir_get_mode();
-bool         ir_set_fan(const char *val, uint8_t len);
-const char  *ir_get_fan();
-bool         ir_set_temp(const char *val, uint8_t len);
-const String ir_get_temp();
+void        ir_init();
+void        ir_loop_handle();
+bool        ir_set_power(const char *val, uint8_t len);
+const char *ir_get_power();
+bool        ir_set_mode(const char *val, uint8_t len);
+const char *ir_get_mode();
+bool        ir_set_fan(const char *val, uint8_t len);
+const char *ir_get_fan();
+bool        ir_set_temp(const char *val, uint8_t len);
+String      ir_get_temp();
 
 #endif // __SRC_IR_H
 

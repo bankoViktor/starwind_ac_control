@@ -195,7 +195,7 @@ bool ir_set_temp(const char *val, uint8_t len) {
     return true;
 }
 
-const String ir_get_temp() {
+String ir_get_temp() {
     float temp = g_ir_ac.getTemp();
     return String(temp, 1);
 }
