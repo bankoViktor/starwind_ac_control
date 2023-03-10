@@ -114,32 +114,36 @@ static void mqtt_on_message_callback(char *topic, char *payload, AsyncMqttClient
     Serial.printf(PSTR("Received: topic \"%s\", value \"%s\" (len %i, index %i, total %i)\n"), topic, buff, len, index, total);
 
     if (strcmp(topic, MQTT_TOPIC_POWER) == 0) { // POWER
+        const char *pszLastPower = ir_get_power();
         if (!ir_set_power(payload, len)) {
             // re write current valid value
             g_mqtt_client.publish(MQTT_TOPIC_POWER, 2, true, ir_get_power());
         } else {
-            Serial.printf("Change POWER to %s\n", ir_get_power());
+            Serial.printf("Change POWER: %s > %s\n", pszLastPower, ir_get_power());
         }
     } else if (strcmp(topic, MQTT_TOPIC_MODE) == 0) { // MODE
+        const char *pszLastMode = ir_get_mode();
         if (!ir_set_mode(payload, len)) {
             // re write current valid value
             g_mqtt_client.publish(MQTT_TOPIC_MODE, 2, true, ir_get_mode());
         } else {
-            Serial.printf("Change MODE to %s\n", ir_get_mode());
+            Serial.printf("Change MODE: %s > %s\n", pszLastMode, ir_get_mode());
         }
     } else if (strcmp(topic, MQTT_TOPIC_FAN) == 0) { // FAN
+        const char *pszLastFan = ir_get_fan();
         if (!ir_set_fan(payload, len)) {
             // re write current valid value
             g_mqtt_client.publish(MQTT_TOPIC_FAN, 2, true, ir_get_fan());
         } else {
-            Serial.printf("Change FAN to %s\n", ir_get_fan());
+            Serial.printf("Change FAN: %s > %s\n", pszLastFan, ir_get_fan());
         }
     } else if (strcmp(topic, MQTT_TOPIC_TEMP) == 0) { // TEMP
+        String sLastTemp = ir_get_temp();
         if (!ir_set_temp(payload, len)) {
             // re write current valid value
             g_mqtt_client.publish(MQTT_TOPIC_TEMP, 2, true, ir_get_temp().c_str());
         } else {
-            Serial.printf("Change TEMP to %s\n", ir_get_temp().c_str());
+            Serial.printf("Change TEMP: %s > %s\n", sLastTemp.c_str(), ir_get_temp().c_str());
         }
     } else {
         Serial.printf("Unexception topic \"%s\"\n", topic);
