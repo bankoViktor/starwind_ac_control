@@ -25,17 +25,17 @@
 
 /* Private Function Declarations ---------------------------------------------- */
 
-void setup();
-void loop();
-void serial_init();
+void        setup();
+void        loop();
+static void serial_init();
 
 /* Private Function Definitions ----------------------------------------------- */
 
 void setup() {
     serial_init();
     wifi_init();
-    mqtt_init();
     ota_init();
+    mqtt_init();
     ir_init();
 
     wifi_connect();
@@ -45,7 +45,7 @@ void loop() {
     ota_loop_handle();
 }
 
-void serial_init() {
+static void serial_init() {
     Serial.begin(SERIAL_BAUD, SERIAL_8N1, SERIAL_TX_ONLY);
     Serial.println();
     Serial.println();

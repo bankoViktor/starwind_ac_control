@@ -22,8 +22,13 @@
 
 #include <ArduinoOTA.h>
 
-/* Private Variables ---------------------------------------------------------- */
 /* Private Function Declarations ---------------------------------------------- */
+
+static void ota_on_start();
+static void ota_on_end();
+static void ota_on_progress(unsigned int progress, unsigned int total);
+static void ota_on_error(ota_error_t error);
+
 /* Public Function Definitions ------------------------------------------------ */
 
 void ota_init() {
@@ -40,43 +45,14 @@ void ota_init() {
     // MD5(admin) = 21232f297a57a5a743894a0e4a801fc3
     // ArduinoOTA.setPasswordHash("21232f297a57a5a743894a0e4a801fc3");
 
-    ArduinoOTA.onStart([]() {
-        String type;
-        if (ArduinoOTA.getCommand() == U_FLASH) {
-            type = "sketch";
-        } else { // U_FS
-            type = "filesystem";
-        }
-
-        // NOTE: if updating FS this would be the place to unmount FS using FS.end()
-        Serial.println("OTA start updating " + type);
-    });
-    ArduinoOTA.onEnd([]() {
-        Serial.println("\nOTA end");
-    });
-    ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-        Serial.printf("OTA progress: %u%%\r", (progress / (total / 100)));
-    });
-    ArduinoOTA.onError([](ota_error_t error) {
-        Serial.printf("OTA error[%u]: ", error);
-        if (error == OTA_AUTH_ERROR) {
-            Serial.println("Auth Failed");
-        } else if (error == OTA_BEGIN_ERROR) {
-            Serial.println("Begin Failed");
-        } else if (error == OTA_CONNECT_ERROR) {
-            Serial.println("Connect Failed");
-        } else if (error == OTA_RECEIVE_ERROR) {
-            Serial.println("Receive Failed");
-        } else if (error == OTA_END_ERROR) {
-            Serial.println("End Failed");
-        }
-    });
+    ArduinoOTA.onStart(ota_on_start);
+    ArduinoOTA.onEnd(ota_on_end);
+    ArduinoOTA.onProgress(ota_on_progress);
+    ArduinoOTA.onError(ota_on_error);
 
     ArduinoOTA.begin();
-    
-    Serial.println("OTA Completed");
-    //Serial.print("IP address: ");
-    //Serial.println(WiFi.localIP());
+
+    Serial.println("OTA Ready");
 }
 
 void ota_loop_handle() {
@@ -84,5 +60,40 @@ void ota_loop_handle() {
 }
 
 /* Private Function Definitions ----------------------------------------------- */
+
+static void ota_on_start() {
+    String type;
+    if (ArduinoOTA.getCommand() == U_FLASH) {
+        type = "sketch";
+    } else { // U_FS
+        type = "filesystem";
+    }
+
+    // NOTE: if updating FS this would be the place to unmount FS using FS.end()
+    Serial.println("OTA start updating " + type);
+}
+
+static void ota_on_end() {
+    Serial.println("\nOTA end");
+}
+
+static void ota_on_progress(unsigned int progress, unsigned int total) {
+    Serial.printf("OTA progress: %u%%\r", (progress / (total / 100)));
+}
+
+static void ota_on_error(ota_error_t error) {
+    Serial.printf("OTA error[%u]: ", error);
+    if (error == OTA_AUTH_ERROR) {
+        Serial.println("Auth Failed");
+    } else if (error == OTA_BEGIN_ERROR) {
+        Serial.println("Begin Failed");
+    } else if (error == OTA_CONNECT_ERROR) {
+        Serial.println("Connect Failed");
+    } else if (error == OTA_RECEIVE_ERROR) {
+        Serial.println("Receive Failed");
+    } else if (error == OTA_END_ERROR) {
+        Serial.println("End Failed");
+    }
+}
 
 /*** end of file ***/
