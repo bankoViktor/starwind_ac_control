@@ -33,6 +33,8 @@ static Ticker          g_mqtt_reconnect_timer;
 
 /* Private Function Declarations ---------------------------------------------- */
 
+static inline uint16_t mqtt_subscribe(const char *topic, uint8_t qos);
+static inline uint16_t mqtt_publish(const char *topic, uint8_t qos, const char *value);
 static void mqtt_on_connect_callback(bool sessionPresent);
 static void mqtt_on_disconnect_callback(AsyncMqttClientDisconnectReason reason);
 static void mqtt_on_subscribe_callback(uint16_t packetId, uint8_t qos);
@@ -71,6 +73,12 @@ void mqtt_disconnect() {
 static inline uint16_t mqtt_subscribe(const char *topic, uint8_t qos) {
     uint16_t packetId = g_mqtt_client.subscribe(topic, qos);
     Serial.printf(PSTR("Subscribed to topic \"%s\" QoS %i\n"), topic, qos);
+    return packetId;
+}
+
+static inline uint16_t mqtt_publish(const char *topic, uint8_t qos, const char *value) {
+    uint16_t packetId = g_mqtt_client.publish(topic, qos, true, value);
+    Serial.printf(PSTR("Published to topic \"%s\" QoS %i value \"%s\"\n"), topic, qos, value);
     return packetId;
 }
 
@@ -119,7 +127,7 @@ static void mqtt_on_message_callback(char *topic, char *payload, AsyncMqttClient
         if (strncmp(payload, pszLastPower, len) != 0) {
             if (!ir_set_power(payload, len)) {
                 // re write current valid value
-                g_mqtt_client.publish(MQTT_TOPIC_POWER, 2, true, ir_get_power());
+                mqtt_publish(MQTT_TOPIC_POWER, 2, ir_get_power());
             } else {
                 Serial.printf("Change POWER: %s > %s\n", pszLastPower, ir_get_power());
             }
@@ -129,7 +137,7 @@ static void mqtt_on_message_callback(char *topic, char *payload, AsyncMqttClient
         if (strncmp(payload, pszLastMode, len) != 0) {
             if (!ir_set_mode(payload, len)) {
                 // re write current valid value
-                g_mqtt_client.publish(MQTT_TOPIC_MODE, 2, true, ir_get_mode());
+                mqtt_publish(MQTT_TOPIC_MODE, 2, ir_get_mode());
             } else {
                 Serial.printf("Change MODE: %s > %s\n", pszLastMode, ir_get_mode());
             }
@@ -139,7 +147,7 @@ static void mqtt_on_message_callback(char *topic, char *payload, AsyncMqttClient
         if (strncmp(payload, pszLastFan, len) != 0) {
             if (!ir_set_fan(payload, len)) {
                 // re write current valid value
-                g_mqtt_client.publish(MQTT_TOPIC_FAN, 2, true, ir_get_fan());
+                mqtt_publish(MQTT_TOPIC_FAN, 2, ir_get_fan());
             } else {
                 Serial.printf("Change FAN: %s > %s\n", pszLastFan, ir_get_fan());
             }
@@ -149,7 +157,7 @@ static void mqtt_on_message_callback(char *topic, char *payload, AsyncMqttClient
         if (strncmp(payload, sLastTemp.c_str(), len) != 0) {
             if (!ir_set_temp(payload, len)) {
                 // re write current valid value
-                g_mqtt_client.publish(MQTT_TOPIC_TEMP, 2, true, ir_get_temp().c_str());
+                mqtt_publish(MQTT_TOPIC_TEMP, 2, ir_get_temp().c_str());
             } else {
                 Serial.printf("Change TEMP: %s > %s\n", sLastTemp.c_str(), ir_get_temp().c_str());
             }
@@ -159,7 +167,7 @@ static void mqtt_on_message_callback(char *topic, char *payload, AsyncMqttClient
         if (strncmp(payload, pszLastFan, len) != 0) {
             if (!ir_set_vswing(payload, len)) {
                 // re write current valid value
-                g_mqtt_client.publish(MQTT_TOPIC_VSWING, 2, true, ir_get_vswing());
+                mqtt_publish(MQTT_TOPIC_VSWING, 2, ir_get_vswing());
             } else {
                 Serial.printf("Change VSWING: %s > %s\n", pszLastFan, ir_get_vswing());
             }
