@@ -46,7 +46,7 @@
 #define WIFI_SSID                "SynMaminoyPodrugi"
 #define WIFI_PASS                "Fazxery497"
 
-#define OTA_HOSTNAME             PROJECT_AC_MANUFACTURER
+#define OTA_HOSTNAME             "AC" PROJECT_AC_MANUFACTURER
 #define OTA_PASSWORD             "admin"
 #define OTA_PORT                 8266
 
