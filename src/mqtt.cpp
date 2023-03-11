@@ -82,6 +82,7 @@ static void mqtt_on_connect_callback(bool sessionPresent) {
     mqtt_subscribe(MQTT_TOPIC_MODE, 0);
     mqtt_subscribe(MQTT_TOPIC_FAN, 0);
     mqtt_subscribe(MQTT_TOPIC_TEMP, 0);
+    mqtt_subscribe(MQTT_TOPIC_VSWING, 0);
 
     // g_mqtt_client.publish(MQTT_TOPIC_POWER, 2, true, powerStr);
     // g_mqtt_client.publish(MQTT_TOPIC_MODE, 2, true, ir_get_mode());
@@ -115,35 +116,53 @@ static void mqtt_on_message_callback(char *topic, char *payload, AsyncMqttClient
 
     if (strcmp(topic, MQTT_TOPIC_POWER) == 0) { // POWER
         const char *pszLastPower = ir_get_power();
-        if (!ir_set_power(payload, len)) {
-            // re write current valid value
-            g_mqtt_client.publish(MQTT_TOPIC_POWER, 2, true, ir_get_power());
-        } else {
-            Serial.printf("Change POWER: %s > %s\n", pszLastPower, ir_get_power());
+        if (strncmp(payload, pszLastPower, len) != 0) {
+            if (!ir_set_power(payload, len)) {
+                // re write current valid value
+                g_mqtt_client.publish(MQTT_TOPIC_POWER, 2, true, ir_get_power());
+            } else {
+                Serial.printf("Change POWER: %s > %s\n", pszLastPower, ir_get_power());
+            }
         }
     } else if (strcmp(topic, MQTT_TOPIC_MODE) == 0) { // MODE
         const char *pszLastMode = ir_get_mode();
-        if (!ir_set_mode(payload, len)) {
-            // re write current valid value
-            g_mqtt_client.publish(MQTT_TOPIC_MODE, 2, true, ir_get_mode());
-        } else {
-            Serial.printf("Change MODE: %s > %s\n", pszLastMode, ir_get_mode());
+        if (strncmp(payload, pszLastMode, len) != 0) {
+            if (!ir_set_mode(payload, len)) {
+                // re write current valid value
+                g_mqtt_client.publish(MQTT_TOPIC_MODE, 2, true, ir_get_mode());
+            } else {
+                Serial.printf("Change MODE: %s > %s\n", pszLastMode, ir_get_mode());
+            }
         }
     } else if (strcmp(topic, MQTT_TOPIC_FAN) == 0) { // FAN
         const char *pszLastFan = ir_get_fan();
-        if (!ir_set_fan(payload, len)) {
-            // re write current valid value
-            g_mqtt_client.publish(MQTT_TOPIC_FAN, 2, true, ir_get_fan());
-        } else {
-            Serial.printf("Change FAN: %s > %s\n", pszLastFan, ir_get_fan());
+        if (strncmp(payload, pszLastFan, len) != 0) {
+            if (!ir_set_fan(payload, len)) {
+                // re write current valid value
+                g_mqtt_client.publish(MQTT_TOPIC_FAN, 2, true, ir_get_fan());
+            } else {
+                Serial.printf("Change FAN: %s > %s\n", pszLastFan, ir_get_fan());
+            }
         }
     } else if (strcmp(topic, MQTT_TOPIC_TEMP) == 0) { // TEMP
         String sLastTemp = ir_get_temp();
-        if (!ir_set_temp(payload, len)) {
-            // re write current valid value
-            g_mqtt_client.publish(MQTT_TOPIC_TEMP, 2, true, ir_get_temp().c_str());
-        } else {
-            Serial.printf("Change TEMP: %s > %s\n", sLastTemp.c_str(), ir_get_temp().c_str());
+        if (strncmp(payload, sLastTemp.c_str(), len) != 0) {
+            if (!ir_set_temp(payload, len)) {
+                // re write current valid value
+                g_mqtt_client.publish(MQTT_TOPIC_TEMP, 2, true, ir_get_temp().c_str());
+            } else {
+                Serial.printf("Change TEMP: %s > %s\n", sLastTemp.c_str(), ir_get_temp().c_str());
+            }
+        }
+    } else if (strcmp(topic, MQTT_TOPIC_VSWING) == 0) { // VSWING
+        const char *pszLastFan = ir_get_vswing();
+        if (strncmp(payload, pszLastFan, len) != 0) {
+            if (!ir_set_vswing(payload, len)) {
+                // re write current valid value
+                g_mqtt_client.publish(MQTT_TOPIC_VSWING, 2, true, ir_get_vswing());
+            } else {
+                Serial.printf("Change VSWING: %s > %s\n", pszLastFan, ir_get_vswing());
+            }
         }
     } else {
         Serial.printf("Unexception topic \"%s\"\n", topic);

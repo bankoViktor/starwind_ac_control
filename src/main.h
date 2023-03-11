@@ -57,11 +57,11 @@
 // #define MQTT_PASS                ""
 #define MQTT_RECONNECT_INTERVAL  3
 #define MQTT_TOPIC_ROOT          "devices/" MQTT_CLIENT_ID
-#define MQTT_TOPIC_POWER         MQTT_TOPIC_ROOT "/power" // Статус:                        ON | OFF
-#define MQTT_TOPIC_MODE          MQTT_TOPIC_ROOT "/mode"  // Режим:                         AUTO | COOL | HEAT | DRY
-#define MQTT_TOPIC_TEMP          MQTT_TOPIC_ROOT "/temp"  // Температура (0.5 °C шаг):      ??.0 - ??.0
-#define MQTT_TOPIC_FAN           MQTT_TOPIC_ROOT "/fan"   // Скорость вентилятора           AUTO | LOW | MIDDLE | HIGH
-#define MQTT_TOPIC_SOME          MQTT_TOPIC_ROOT "/..."   //
+#define MQTT_TOPIC_POWER         MQTT_TOPIC_ROOT "/power"       // Статус:                        ON | OFF
+#define MQTT_TOPIC_MODE          MQTT_TOPIC_ROOT "/mode"        // Режим:                         AUTO | COOL | HEAT | DRY
+#define MQTT_TOPIC_TEMP          MQTT_TOPIC_ROOT "/temperature" // Температура (0.5 °C шаг):      ??.0 - ??.0
+#define MQTT_TOPIC_FAN           MQTT_TOPIC_ROOT "/fan"         // Скорость вентилятора           AUTO | LOW | MIDDLE | HIGH
+#define MQTT_TOPIC_VSWING        MQTT_TOPIC_ROOT "/vswing"      // Верт. шторки                   OFF | HIGHEST | HIGH | MIDDLE | LOW | LOWEST | ON
 
 // An IR detector/demodulator is connected to GPIO pin 14
 // e.g. D5 on a NodeMCU board.

@@ -41,6 +41,13 @@
 #define IR_FAN_MAX            "MAX"
 #define IR_TEMP_MIN           18
 #define IR_TEMP_MAX           28
+#define IR_VSWING_OFF         "OFF"
+#define IR_VSWING_HIGHEST     "HIGHEST"
+#define IR_VSWING_HIGH        "HIGH"
+#define IR_VSWING_MIDDLE      "MIDDLE"
+#define IR_VSWING_LOW         "LOW"
+#define IR_VSWING_LOWEST      "LOWEST"
+#define IR_VSWING_ON          "ON"
 
 /* Private Variables ---------------------------------------------------------- */
 
@@ -198,6 +205,53 @@ bool ir_set_temp(const char *val, uint8_t len) {
 String ir_get_temp() {
     float temp = g_ir_ac.getTemp();
     return String(temp, 1);
+}
+
+bool ir_set_vswing(const char *val, uint8_t len) {
+    uint8_t vswing;
+
+    if (strncmp(val, IR_VSWING_OFF, len) == 0) {
+        vswing = kTcl112AcSwingVOff;
+    } else if (strncmp(val, IR_VSWING_HIGHEST, len) == 0) {
+        vswing = kTcl112AcSwingVHighest;
+    } else if (strncmp(val, IR_VSWING_HIGH, len) == 0) {
+        vswing = kTcl112AcSwingVHigh;
+    } else if (strncmp(val, IR_VSWING_MIDDLE, len) == 0) {
+        vswing = kTcl112AcSwingVMiddle;
+    } else if (strncmp(val, IR_VSWING_LOW, len) == 0) {
+        vswing = kTcl112AcSwingVLow;
+    } else if (strncmp(val, IR_VSWING_LOWEST, len) == 0) {
+        vswing = kTcl112AcSwingVLowest;
+    } else if (strncmp(val, IR_VSWING_ON, len) == 0) {
+        vswing = kTcl112AcSwingVOn;
+    } else {
+        return false;
+    }
+
+    g_ir_ac.setSwingVertical(vswing);
+    return true;
+}
+
+const char *ir_get_vswing() {
+    switch (g_ir_ac.getSwingVertical()) {
+    case kTcl112AcSwingVOff:
+        return IR_VSWING_OFF;
+    case kTcl112AcSwingVHighest:
+        return IR_VSWING_HIGHEST;
+    case kTcl112AcSwingVHigh:
+        return IR_VSWING_HIGH;
+    case kTcl112AcSwingVMiddle:
+        return IR_VSWING_MIDDLE;
+    case kTcl112AcSwingVLow:
+        return IR_VSWING_LOW;
+    case kTcl112AcSwingVLowest:
+        return IR_VSWING_LOWEST;
+    case kTcl112AcSwingVOn:
+        return IR_VSWING_ON;
+    default:
+        g_ir_ac.setSwingVertical(kTcl112AcSwingVOff);
+        return IR_VSWING_OFF;
+    }
 }
 
 /*** end of file ***/

@@ -36,6 +36,8 @@ bool        ir_set_fan(const char *val, uint8_t len);
 const char *ir_get_fan();
 bool        ir_set_temp(const char *val, uint8_t len);
 String      ir_get_temp();
+bool        ir_set_vswing(const char *val, uint8_t len);
+const char *ir_get_vswing();
 
 #endif // __SRC_IR_H
 
