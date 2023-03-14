@@ -19,8 +19,8 @@
 
 /* Public Function Declarations ----------------------------------------------- */
 
-void ota_init();
-void ota_loop_handle();
+extern void ota_init();
+extern void ota_loop_handle();
 
 #endif // __SRC_OTA_H
 
