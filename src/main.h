@@ -53,9 +53,9 @@
 
 #define MQTT_HOST                "192.168.1.2"
 #define MQTT_PORT                1883
-#define MQTT_CLIENT_ID           "AC_" PROJECT_AC_MANUFACTURER "_SN" PROJECT_AC_SERIAL_NUMBER
 // #define MQTT_USER                ""
 // #define MQTT_PASS                ""
+#define MQTT_CLIENT_ID           "AC_" PROJECT_AC_MANUFACTURER "_SN" PROJECT_AC_SERIAL_NUMBER
 #define MQTT_RECONNECT_INTERVAL  3
 #define MQTT_TOPIC_ROOT          "devices/" MQTT_CLIENT_ID
 #define MQTT_TOPIC_POWER         MQTT_TOPIC_ROOT "/power"       // Статус:                        ON | OFF

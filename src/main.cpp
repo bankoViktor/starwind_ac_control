@@ -61,7 +61,6 @@ static void serial_init() {
         "AC MODEL             : " PROJECT_AC_MODEL "\n"
         "AC SERIAL NUMBER     : " PROJECT_AC_SERIAL_NUMBER "\n"
         "===============================================\n"
-        "\n"
         "\n"));
 }
 
