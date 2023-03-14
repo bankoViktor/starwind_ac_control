@@ -39,6 +39,7 @@ static void wifi_on_disconnected_callback(const WiFiEventStationModeDisconnected
 void wifi_init() {
     WiFi.disconnect();
     WiFi.persistent(false);
+    WiFi.setHostname(WIFI_HOSTNAME);
 
     g_wifi_connect_handler = WiFi.onStationModeGotIP(wifi_on_got_ip_callback);
     g_wifi_disconnected_handler = WiFi.onStationModeDisconnected(wifi_on_disconnected_callback);

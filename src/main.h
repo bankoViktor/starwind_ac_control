@@ -45,6 +45,7 @@
 
 #define WIFI_SSID                "SynMaminoyPodrugi"
 #define WIFI_PASS                "Fazxery497"
+#define WIFI_HOSTNAME            "AC " PROJECT_AC_MANUFACTURER
 
 #define OTA_HOSTNAME             "AC_" PROJECT_AC_MANUFACTURER
 #define OTA_PASSWORD             "admin"
