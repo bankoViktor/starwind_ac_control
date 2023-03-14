@@ -57,9 +57,9 @@ void wifi_connect() {
 static void wifi_on_got_ip_callback(const WiFiEventStationModeGotIP &e) {
     Serial.printf(PSTR("Connected to Wi-Fi. IP %s\n"), WiFi.localIP().toString().c_str());
 
-    mqtt_connect();
-
     ota_init();
+
+    mqtt_connect();
 }
 
 static void wifi_on_disconnected_callback(const WiFiEventStationModeDisconnected &e) {

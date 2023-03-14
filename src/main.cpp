@@ -34,7 +34,6 @@ static void serial_init();
 void setup() {
     serial_init();
     wifi_init();
-    ota_init();
     mqtt_init();
     ir_init();
 
