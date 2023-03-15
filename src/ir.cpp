@@ -1,6 +1,6 @@
 /**
  ******************************************************************************
- * @file    ir.c
+ * @file    ir.cpp
  * @author  Banko Viktor S. (bankviktor14@gmail.com)
  * @version V1.0.0
  * @date    24-Feb-2023
