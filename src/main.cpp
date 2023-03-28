@@ -23,6 +23,15 @@
 #include "ota.h"
 #include "wifi.h"
 
+#include "led.h"
+
+/* Private Variables ---------------------------------------------------------- */
+
+static LedIndicator g_led(D0);
+
+static LedIndicator::tm_t g_s1[] { 200 };
+static LedIndicator::tm_t g_s2[] { 200 };
+
 /* Private Function Declarations ---------------------------------------------- */
 
 void        setup();
@@ -31,17 +40,42 @@ static void serial_init();
 
 /* Private Function Definitions ----------------------------------------------- */
 
+unsigned long t;
+bool state = false;
+
 void setup() {
     serial_init();
-    wifi_init();
-    mqtt_init();
-    ir_init();
 
-    wifi_connect();
+    g_led.addState(g_s1, sizeof(g_s1)/sizeof(g_s1[0]));
+    g_led.addState(g_s2, sizeof(g_s2)/sizeof(g_s2[0]));
+    g_led.begin();
+
+    //wifi_init();
+    //mqtt_init();
+    //ir_init();
+
+    //wifi_connect();
 }
 
 void loop() {
-    ota_loop_handle();
+    if (t == 0) {
+        t = millis();
+    } else {
+        auto _tm = millis();
+        if (_tm - t >= 5000) {
+            auto s = state ? 0 : 1;
+            //g_led.setState(s);
+
+            Serial.printf("s%i\n", s );
+
+            state = !state;
+            t = _tm;
+        }
+    }
+
+    g_led.handle();
+
+    //ota_loop_handle();
 }
 
 static void serial_init() {
