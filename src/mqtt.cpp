@@ -35,12 +35,12 @@ static Ticker          g_mqtt_reconnect_timer;
 
 static inline uint16_t mqtt_subscribe(const char *topic, uint8_t qos);
 static inline uint16_t mqtt_publish(const char *topic, uint8_t qos, const char *value);
-static void mqtt_on_connect_callback(bool sessionPresent);
-static void mqtt_on_disconnect_callback(AsyncMqttClientDisconnectReason reason);
-static void mqtt_on_subscribe_callback(uint16_t packetId, uint8_t qos);
-static void mqtt_on_unsubscribe_callback(uint16_t packetId);
-static void mqtt_on_message_callback(char *topic, char *payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total);
-static void mqtt_on_publish_callback(uint16_t packetId);
+static void            mqtt_on_connect_callback(bool sessionPresent);
+static void            mqtt_on_disconnect_callback(AsyncMqttClientDisconnectReason eReason);
+static void            mqtt_on_subscribe_callback(uint16_t packetId, uint8_t qos);
+static void            mqtt_on_unsubscribe_callback(uint16_t packetId);
+static void            mqtt_on_message_callback(char *topic, char *payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total);
+static void            mqtt_on_publish_callback(uint16_t packetId);
 
 /* Public Function Definitions ------------------------------------------------ */
 

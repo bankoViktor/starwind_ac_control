@@ -27,7 +27,7 @@
 static void ota_on_start();
 static void ota_on_end();
 static void ota_on_progress(unsigned int progress, unsigned int total);
-static void ota_on_error(ota_error_t error);
+static void ota_on_error(ota_error_t eError);
 
 /* Public Function Definitions ------------------------------------------------ */
 

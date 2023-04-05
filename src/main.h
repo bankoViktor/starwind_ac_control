@@ -28,13 +28,11 @@
 #define stringify(s)    _stringifyDo(s)
 #define _stringifyDo(s) #s
 
-#ifdef RELEASE
+#ifdef CFG_RELEASE
 #define PROJECT_CONFIGURATION "Release"
-#elif DEBUG
+#elif CFG_DEBUG
 #define PROJECT_CONFIGURATION "Debug"
-#else
-#define PROJECT_CONFIGURATION "Unknown"
-#endif // !RELEASE
+#endif
 
 #define PROJECT_NAME             "MQTT Air Conditioner remote controller on Wi-Fi"
 #define PROJECT_VERSION          "0.0.1"
@@ -47,7 +45,7 @@
 #define WIFI_PASS                "Fazxery497"
 #define WIFI_HOSTNAME            "AC " PROJECT_AC_MANUFACTURER
 
-#define OTA_HOSTNAME             "AC_" PROJECT_AC_MANUFACTURER
+#define OTA_HOSTNAME             WIFI_HOSTNAME
 #define OTA_PASSWORD             "admin"
 #define OTA_PORT                 8266
 
