@@ -17,22 +17,28 @@
 #ifndef __SRC_MAIN_H
 #define __SRC_MAIN_H
 
+//#define RIX_DISABLE
+#define RIX_FORMAT_EX
+
 /* Public Includes ------------------------------------------------------------ */
 
 #include <Arduino.h>
 #include <IRrecv.h>
 #include <assert.h>
+#include <esp-rix.h>
 
 /* Public Definitions --------------------------------------------------------- */
 
 #define stringify(s)    _stringifyDo(s)
 #define _stringifyDo(s) #s
 
-#ifdef CFG_RELEASE
+#ifdef RELEASE
 #define PROJECT_CONFIGURATION "Release"
-#elif CFG_DEBUG
+#elif DEBUG
 #define PROJECT_CONFIGURATION "Debug"
 #endif
+
+#define RIX_TELNET_PORT          23
 
 #define PROJECT_NAME             "MQTT Air Conditioner remote controller on Wi-Fi"
 #define PROJECT_VERSION          "0.0.1"
